@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>U.I.D.</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0D0D14;
+  --s1:#121220;
+  --s2:#181826;
+  --mg:#A78BFA;
+  --mg-dim:rgba(167,139,250,0.1);
+  --mg-glow:rgba(167,139,250,0.3);
+  --pk:#FF2D78;
+  --pk-dim:rgba(255,45,120,0.12);
+  --pk-glow:rgba(255,45,120,0.35);
+  --pu:#8B00FF;
+  --cy:#00E5FF;
+  --cy-dim:rgba(0,229,255,0.1);
+  --cy-glow:rgba(0,229,255,0.3);
+  --gr:#39FF14;
+  --gr-dim:rgba(57,255,20,0.1);
+  --am:#FFB800;
+  --tx:#CCCAC0;
+  --tx-b:#F0EDE4;
+  --tx-d:#3A3850;
+  --bd:rgba(167,139,250,0.2);
+  --vt:'VT323',monospace;
+  --mo:'Share Tech Mono','Courier New',monospace;
+  /* Login screen extra vars from design 2 */
+  --surface:rgba(2,8,24,0.96);
+  --surface2:rgba(0,15,40,0.98);
+  --cyan:#00D4FF;
+  --cyan-dim:rgba(0,212,255,0.15);
+  --cyan-glow:rgba(0,212,255,0.4);
+  --pink:#FF1F6A;
+  --pink-dim:rgba(255,31,106,0.15);
+  --pink-glow:rgba(255,31,106,0.4);
+  --text:#B8D4F0;
+  --text-bright:#E8F4FF;
+  --text-dim2:#3A5A7A;
+  --border-login:rgba(0,212,255,0.2);
+  --orb:'Orbitron',sans-serif;
+  --sans:'Space Grotesk',-apple-system,sans-serif;
+}
+html,body{min-height:100%;background:var(--bg)}
+body{color:var(--tx);font-family:var(--mo);font-size:14px;line-height:1.6;overflow-x:hidden}
+
+/* scanlines subtle */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 1px,rgba(0,0,0,0.06) 1px,rgba(0,0,0,0.06) 2px);
+}
+
+.screen{display:none}
+.screen.active{display:flex}
+
+/* ── LOGIN ── */
+#login-screen{
+  min-height:100vh;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px;
+  background:radial-gradient(ellipse at 50% -10%,rgba(0,212,255,.12) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 90%,rgba(124,58,237,.1) 0%,transparent 50%);
+  position:relative;z-index:10;
+}
+.uid-eyebrow{
+  font-family:var(--mo);font-size:11px;color:var(--cyan);letter-spacing:5px;
+  margin-bottom:16px;opacity:.7;text-transform:uppercase;
+}
+.uid-title{
+  font-family:var(--orb);font-size:clamp(22px,5.5vw,42px);font-weight:900;
+  color:var(--text-bright);text-align:center;line-height:1.15;margin-bottom:10px;
+  text-shadow:0 0 30px var(--cyan-glow),0 0 60px rgba(0,212,255,.2);
+  letter-spacing:2px;animation:glitch 6s infinite;
+}
+.uid-sub{
+  font-family:var(--mo);font-size:12px;color:var(--cyan);text-align:center;
+  letter-spacing:4px;margin-bottom:48px;opacity:.8;
+}
+.badge{
+  display:inline-block;background:transparent;color:var(--pink);
+  font-family:var(--mo);font-size:10px;letter-spacing:4px;
+  padding:5px 16px;margin-bottom:24px;border:1px solid var(--pink);
+  box-shadow:0 0 12px var(--pink-glow);text-transform:uppercase;
+}
+.login-card{
+  background:var(--surface);border:1px solid var(--border-login);
+  padding:32px;width:100%;max-width:420px;
+  box-shadow:0 0 40px rgba(0,212,255,.08),inset 0 0 30px rgba(0,0,0,.5);
+  position:relative;
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.login-card label{
+  display:block;font-family:var(--mo);font-size:11px;color:var(--cyan);
+  letter-spacing:3px;margin-bottom:12px;text-transform:uppercase;
+}
+.login-card input{
+  width:100%;background:rgba(0,212,255,.04);border:1px solid var(--border-login);
+  color:var(--text-bright);font-family:var(--mo);font-size:18px;
+  padding:16px 18px;outline:none;transition:all .2s;
+}
+.login-card input::placeholder{color:var(--text-dim2)}
+.login-card input:focus{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 2px var(--cyan-dim),0 0 20px rgba(0,212,255,.15);
+}
+.btn-primary{
+  width:100%;margin-top:16px;background:transparent;color:var(--cyan);
+  border:1px solid var(--cyan);font-family:var(--orb);font-size:12px;
+  letter-spacing:4px;padding:18px;cursor:pointer;transition:all .25s;
+  text-transform:uppercase;min-height:56px;position:relative;overflow:hidden;
+}
+.btn-primary::before{
+  content:'';position:absolute;inset:0;background:var(--cyan-dim);
+  transform:translateX(-100%);transition:transform .25s;
+}
+.btn-primary:hover::before{transform:translateX(0)}
+.btn-primary:hover{box-shadow:0 0 24px var(--cyan-glow)}
+.sys-status{
+  margin-top:32px;font-family:var(--mo);font-size:10px;
+  color:var(--text-dim2);text-align:center;letter-spacing:2px;
+}
+.dot{display:inline-block;width:7px;height:7px;background:var(--gr);
+  border-radius:50%;margin-right:6px;animation:pulse 2s infinite;box-shadow:0 0 6px var(--gr)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes glitch{
+  0%,96%{text-shadow:0 0 30px var(--cyan-glow),0 0 60px rgba(0,212,255,.2)}
+  97%{text-shadow:3px 0 var(--pink),-3px 0 var(--cyan)}
+  98%{text-shadow:-3px 0 var(--pink),3px 0 var(--cyan)}
+  99%{text-shadow:0 0 30px var(--cyan-glow)}
+}
+/* Remove old scan/logo styles that may conflict */
+.ascii-logo{display:none}
+.logo-sub{display:none}
+.login-box{display:none}
+.sys-line{display:none}
+.scan-wrap{display:none}
+
+/* ── TOP BAR ── */
+.top-bar{
+  background:rgba(5,5,10,0.97);border-bottom:1px solid var(--bd);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 rgba(255,45,120,0.1),0 4px 20px rgba(0,0,0,0.9);
+}
+.bar-logo{font-family:var(--vt);font-size:28px;color:var(--mg);letter-spacing:3px;text-shadow:0 0 10px var(--mg-glow)}
+.bar-team{font-size:11px;color:var(--tx-d);letter-spacing:1px}
+.bar-score{font-family:var(--vt);font-size:24px;color:var(--am);text-shadow:0 0 8px rgba(255,184,0,0.4)}
+
+/* ── DASHBOARD ── */
+#dashboard-screen{flex-direction:column;min-height:100vh}
+.dash-body{padding:24px 20px;flex:1;max-width:720px;margin:0 auto;width:100%}
+.sec-hdr{
+  font-size:10px;color:var(--cy);letter-spacing:5px;
+  margin-bottom:16px;padding-bottom:8px;
+  border-bottom:1px solid rgba(0,229,255,0.15);
+  text-shadow:0 0 6px var(--cy-glow);
+}
+.cases-list{display:flex;flex-direction:column;gap:1px;margin-bottom:32px;border:1px solid var(--bd)}
+.case-card{
+  background:var(--s1);padding:18px 20px 18px 0;
+  cursor:pointer;position:relative;overflow:hidden;transition:background .15s;
+  display:flex;align-items:flex-start;gap:0;
+}
+.case-stripe{width:3px;flex-shrink:0;background:var(--mg);margin-right:16px;align-self:stretch;box-shadow:0 0 8px var(--mg-glow)}
+.case-stripe.gr{background:var(--gr);box-shadow:0 0 8px rgba(57,255,20,0.4)}
+.case-inner{flex:1}
+.case-card:hover{background:var(--s2)}
+.case-num{font-size:9px;color:var(--mg);letter-spacing:4px;margin-bottom:4px;text-shadow:0 0 6px var(--mg-glow)}
+.case-name{font-family:var(--vt);font-size:26px;color:var(--tx-b);letter-spacing:1px;margin-bottom:3px;line-height:1}
+.case-desc{font-size:12px;color:var(--tx);line-height:1.4}
+.case-tags{display:flex;gap:8px;margin-top:10px}
+.tag{font-size:9px;padding:2px 8px;border:1px solid;letter-spacing:2px}
+.tag.ph{color:var(--mg);border-color:var(--mg);text-shadow:0 0 6px var(--mg-glow)}
+.tag.df{color:var(--am);border-color:var(--am)}
+.tag.os{color:var(--cy);border-color:var(--cy)}
+.tag.ok{color:var(--gr);border-color:var(--gr);text-shadow:0 0 6px rgba(57,255,20,0.4)}
+.case-pts{position:absolute;top:16px;right:16px;font-family:var(--vt);font-size:22px;color:var(--am)}
+.note{
+  border:1px solid rgba(0,229,255,0.15);padding:14px;
+  margin-bottom: 20px;
+  font-size:13px;color:var(--tx);line-height:1.6;
+  background:var(--cy-dim);
+}
+.note.warn{border-color:rgba(0,229,255,0.2);background:rgba(0,229,255,0.05)}
+
+/* ── CASE SCREEN ── */
+#case-screen{flex-direction:column;min-height:100vh}
+.case-hdr{
+  background:rgba(5,5,10,0.98);border-bottom:1px solid var(--bd);
+  padding:14px 20px;box-shadow:0 1px 0 rgba(255,45,120,0.1);
+}
+.back{
+  font-size:11px;color:var(--cy);background:none;border:none;cursor:pointer;
+  letter-spacing:2px;margin-bottom:8px;display:block;min-height:36px;
+  transition:color .2s;
+}
+.back:hover{color:var(--mg)}
+.case-hdr h1{font-family:var(--vt);font-size:28px;color:var(--tx-b);letter-spacing:1px;line-height:1}
+.case-hdr p{font-size:11px;color:var(--tx-d);margin-top:6px;letter-spacing:1px}
+
+.tabs{
+  display:flex;background:rgba(5,5,10,0.98);
+  border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:90;
+}
+.tab{
+  flex:1;padding:13px 4px;font-family:var(--mo);font-size:10px;letter-spacing:3px;
+  text-align:center;cursor:pointer;color:var(--tx-d);border:none;background:none;
+  border-bottom:2px solid transparent;transition:all .15s;min-height:44px;
+}
+.tab.active{color:var(--mg);border-bottom-color:var(--mg);text-shadow:0 0 8px var(--mg-glow)}
+
+.tab-content{display:none;padding:20px;padding-bottom:80px;max-width:720px;margin:0 auto;width:100%}
+.tab-content.active{display:block}
+
+/* ── EVIDENCE ── */
+.ev{border:1px solid var(--bd);margin-bottom:14px;background:var(--s1)}
+.ev-lbl{
+  padding:8px 14px;font-size:11px;color:var(--mg);letter-spacing:3px;
+  border-bottom:1px solid var(--bd);background:var(--s2);
+  font-weight:700;
+}
+.ev-lbl::before{content:'// '}
+.ev-body{padding:16px}
+
+.trow{display:flex;gap:12px;margin-bottom:8px;font-size:12px;color:var(--tx);line-height:1.4}
+.trow .t{color:var(--cy);flex-shrink:0;width:52px;font-size:11px}
+.trow .t.bad{color:var(--mg);text-shadow:0 0 6px var(--mg-glow)}
+
+/* SMS */
+.sms-from{font-size:11px;color:var(--tx-d);margin-bottom:8px;letter-spacing:1px}
+.sms{
+  background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.12);
+  padding:12px 14px;max-width:88%;font-size:14px;line-height:1.6;color:var(--tx-b);
+}
+.sms.danger{background:var(--mg-dim);border-color:rgba(255,45,120,0.2)}
+.sms-time{font-size:10px;color:var(--tx-d);margin-top:6px}
+.hot{
+  background:rgba(188, 45, 255, 0.15);
+  cursor:pointer;padding:0 3px;transition:background .15s;color:rgba(255, 183, 199, 0.9);
+}
+.hot:active,.hot:hover{background:rgba(255,45,120,0.3)}
+
+/* Email */
+.erow{padding:8px 0;border-bottom:1px solid rgba(255,45,120,0.08);display:flex;gap:8px;font-size:12px}
+.elbl{font-size:10px;color:var(--tx-d);width:52px;flex-shrink:0;padding-top:2px;letter-spacing:1px}
+.ebody{padding:12px 0;font-size:13px;line-height:1.9;color:var(--tx)}
+
+/* Instagram */
+.insta{background:#000;border:1px solid #1a1a2a}
+.insta-h{padding:10px 12px;display:flex;align-items:center;gap:10px;background:#080814}
+.insta-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#bc1888)}
+.insta-u{font-weight:700;font-size:13px;color:#eee}
+.insta-l{font-size:10px;color:#444}
+.img-wrap{position:relative;height:180px;background:#080814;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.img-txt{text-align:center;font-size:12px;color:#333;padding:12px;line-height:1.9;font-style:italic}
+.mkr{
+  position:absolute;background:var(--mg);border:none;width:28px;height:28px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;cursor:pointer;color:#fff;z-index:10;
+  box-shadow:0 0 10px var(--mg-glow);transition:transform .15s;
+}
+.mkr:active{transform:scale(1.2)}
+.insta-cap{padding:10px 12px;font-size:12px;background:#080814;color:#aaa;line-height:1.6}
+
+/* Waveform */
+.wf{
+  height:80px;background:var(--s2);border:1px solid rgba(255,45,120,0.1);
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:3px;padding:8px;position:relative;overflow:hidden;
+}
+.wbar{background:var(--cy);width:4px;opacity:.7;border-radius:1px 1px 0 0}
+.wbar.anom{background:var(--mg);opacity:1;box-shadow:0 0 6px var(--mg-glow)}
+.anom-lbl{
+  position:absolute;top:4px;font-size:9px;color:var(--mg);letter-spacing:1px;z-index:2;
+  text-shadow:0 0 6px var(--mg-glow);
+}
+
+/* Questions */
+.qblock{border:1px solid var(--bd);padding:18px;margin-bottom:12px;background:var(--s1)}
+.qnum{font-size:9px;color:var(--cy);letter-spacing:4px;margin-bottom:8px;text-shadow:0 0 6px var(--cy-glow)}
+.qtext{font-family:var(--vt);font-size:22px;color:var(--tx-b);margin-bottom:14px;line-height:1.2;letter-spacing:.5px}
+.opt{
+  display:flex;align-items:flex-start;gap:10px;padding:12px;margin-bottom:6px;
+  border:1px solid rgba(255,45,120,0.1);cursor:pointer;transition:all .15s;
+  background:transparent;min-height:48px;
+}
+.opt:active,.opt:hover{border-color:rgba(255,45,120,0.4);background:var(--mg-dim)}
+.opt.sel{border-color:var(--cy);background:var(--cy-dim)}
+.opt.ok{border-color:var(--gr);background:var(--gr-dim)}
+.opt.bad{border-color:var(--mg);background:var(--mg-dim)}
+.opt-l{font-size:11px;color:var(--mg);width:18px;flex-shrink:0;padding-top:2px}
+.opt-t{font-size:13px;line-height:1.4;color:var(--tx)}
+.expl{
+  display:none;margin-top:10px;padding:12px;
+  border:1px solid rgba(57,255,20,0.2);background:var(--gr-dim);
+  font-size:12px;line-height:1.7;color:var(--tx);
+}
+.expl.vis{display:block}
+.reveal-btn{
+  width:100%;background:transparent;border:1px solid rgba(255,45,120,0.3);
+  color:var(--mg);font-family:var(--vt);font-size:22px;letter-spacing:3px;
+  padding:12px;cursor:pointer;transition:all .2s;margin-top:8px;
+}
+.reveal-btn:hover{background:var(--mg-dim);border-color:var(--mg);box-shadow:0 0 16px var(--mg-glow)}
+.result-box{
+  border:1px solid rgba(57,255,20,0.3);padding:18px;text-align:center;
+  margin-bottom:14px;background:var(--gr-dim);
+}
+.result-pts{font-family:var(--vt);font-size:48px;color:var(--am);line-height:1;text-shadow:0 0 16px rgba(255,184,0,0.4)}
+.result-lbl{font-size:10px;color:var(--tx-d);letter-spacing:4px;margin-top:4px}
+
+/* Tooltip */
+.tip{
+  display:none;position:fixed;bottom:16px;left:12px;right:12px;
+  background:rgba(5,5,10,.98);border:1px solid var(--mg);
+  padding:12px 44px 12px 14px;font-size:13px;z-index:300;line-height:1.6;
+  box-shadow:0 0 20px var(--mg-glow);color:var(--tx);max-width:720px;margin:0 auto;
+}
+.tip.vis{display:block}
+.tip-x{
+  position:absolute;top:8px;right:12px;cursor:pointer;
+  color:var(--tx-d);background:none;border:none;font-size:18px;
+  min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;
+}
+
+/* Phishing screen */
+#phish-screen{
+  flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:36px 20px;text-align:center;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,45,120,0.1) 0%,transparent 60%);
+}
+.phish-icon{font-family:var(--vt);font-size:80px;color:var(--mg);margin-bottom:8px;text-shadow:0 0 20px var(--mg-glow);line-height:1}
+.phish-title{font-family:var(--vt);font-size:40px;color:var(--mg);margin-bottom:16px;letter-spacing:3px;text-shadow:0 0 16px var(--mg-glow)}
+.phish-text{font-size:14px;color:var(--tx);line-height:1.8;max-width:360px;margin-bottom:24px}
+.phish-box{
+  border:1px solid rgba(255,45,120,0.3);border-left:3px solid var(--mg);
+  padding:16px;text-align:left;max-width:360px;width:100%;background:var(--mg-dim);
+}
+.phish-box-t{font-size:9px;color:var(--mg);letter-spacing:3px;margin-bottom:8px}
+.phish-box-t::before{content:'// '}
+.phish-box-b{font-size:13px;line-height:1.7;color:var(--tx)}
+.back-app{
+  margin-top:22px;background:none;border:1px solid var(--bd);
+  color:var(--tx-d);font-family:var(--mo);font-size:11px;
+  letter-spacing:2px;padding:12px 24px;cursor:pointer;
+  min-height:48px;transition:all .2s;
+}
+.back-app:hover{border-color:var(--cy);color:var(--cy)}
+
+@media(min-width:600px){
+  .dash-body,.tab-content{padding-left:28px;padding-right:28px}
+  .tab{font-size:11px}
+  .qtext{font-size:26px}
+  .case-name{font-size:30px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="rain-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.15"></canvas>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="uid-eyebrow">Sistema de Investigación Digital // v2.4.1</div>
+  <div class="uid-title">UNIDAD DE<br>INVESTIGACIÓN<br>DIGITAL</div>
+  <div class="uid-sub">Cibercrimen · Análisis · Resolución</div>
+  <span class="badge">⚠ Acceso Restringido</span>
+  <div class="login-card">
+    <label for="tname">Identificador de Equipo</label>
+    <input type="text" id="tname" placeholder="Ej: EQUIPO ALPHA" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')start()">
+    <button class="btn-primary" onclick="start()">▶ Iniciar Sesión</button>
+  </div>
+  <div class="sys-status"><span class="dot"></span>Sistema operativo · 3 expedientes activos</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen" class="screen">
+  <div class="top-bar">
+    <span class="bar-logo">U.I.D.</span>
+    <span class="bar-team" id="tdisp">EQUIPO —</span>
+    <span class="bar-score" id="sdisp">000 PTS</span>
+  </div>
+  <div class="dash-body">
+    <div class="sec-hdr">INSTRUCCIONES</div>
+    <div class="note" id="instruc">Comenzad por el Expediente 01. Analizad las evidencias, debatid en equipo y responded las preguntas antes de revelar las respuestas.</div>
+    <div class="sec-hdr">EXPEDIENTES ACTIVOS</div>
+    <div class="cases-list">
+      <div class="case-card" id="card-1" onclick="openCase(1)">
+        <div class="case-stripe" id="str-1"></div>
+        <div class="case-inner">
+          <div class="case-num">EXPEDIENTE 01</div>
+          <div class="case-name">El caso Álvaro</div>
+          <div class="case-desc">15 años. Cuenta de Instagram comprometida. Cargo no autorizado de 50€.</div>
+          <div class="case-tags"><span class="tag ph">PHISHING</span></div>
+        </div>
+        <span class="case-pts" id="pts-1">300</span>
+      </div>
+      <div class="case-card" id="card-2" onclick="openCase(2)">
+        <div class="case-stripe" id="str-2"></div>
+        <div class="case-inner">
+          <div class="case-num">EXPEDIENTE 02</div>
+          <div class="case-name">El caso Marta</div>
+          <div class="case-desc">Profesora. Audio de su voz manipulado con IA y difundido entre alumnos.</div>
+          <div class="case-tags"><span class="tag df">DEEPFAKE</span></div>
+        </div>
+        <span class="case-pts" id="pts-2">300</span>
+      </div>
+      <div class="case-card" id="card-3" onclick="openCase(3)">
+        <div class="case-stripe" id="str-3"></div>
+        <div class="case-inner">
+          <div class="case-num">EXPEDIENTE 03</div>
+          <div class="case-name">El caso Lucas</div>
+          <div class="case-desc">16 años. Extorsionado con información obtenida de sus redes sociales.</div>
+          <div class="case-tags"><span class="tag os">HUELLA DIGITAL</span></div>
+        </div>
+        <span class="case-pts" id="pts-3">300</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CASE -->
+<div id="case-screen" class="screen">
+  <div class="case-hdr">
+    <button class="back" onclick="goBack()">← VOLVER AL PANEL</button>
+    <h1 id="cs-title">—</h1>
+    <p id="cs-sub">—</p>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('context')">CONTEXTO</button>
+    <button class="tab" onclick="switchTab('evidence')">EVIDENCIAS</button>
+    <button class="tab" onclick="switchTab('questions')">PREGUNTAS</button>
+  </div>
+  <div id="tab-context" class="tab-content active"></div>
+  <div id="tab-evidence" class="tab-content"></div>
+  <div id="tab-questions" class="tab-content"></div>
+</div>
+
+<!-- PHISHING REVEAL -->
+<div id="phish-screen" class="screen">
+  <div class="phish-icon">!</div>
+  <div class="phish-title">TRAMPA ACTIVADA</div>
+  <div class="phish-text">Acabas de hacer clic en un enlace desconocido porque el título te llamó la atención. Eso es exactamente cómo funciona el phishing.</div>
+  <div class="phish-box">
+    <div class="phish-box-t">LECCIÓN APRENDIDA</div>
+    <div class="phish-box-b">Los atacantes no necesitan hackear sistemas. Solo necesitan que hagas clic. Un titular atractivo, un poco de curiosidad, y el ataque está dentro.<br><br><strong style="color:var(--mg)">Antes de clicar: ¿lo esperabas? ¿conoces la fuente?</strong></div>
+  </div>
+  <button class="back-app" onclick="goToApp()">← VOLVER A LA INVESTIGACIÓN</button>
+</div>
+
+<!-- Tooltip -->
+<div class="tip" id="tip">
+  <button class="tip-x" onclick="closeTip()">✕</button>
+  <div id="tip-body"></div>
+</div>
+
+<script>
+// Rain animation
+(function(){
+  const c=document.getElementById('rain-canvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  let drops=[];
+  function resize(){
+    c.width=window.innerWidth;c.height=window.innerHeight;drops=[];
+    const n=Math.floor(c.width/18);
+    for(let i=0;i<n;i++){
+      drops.push({x:Math.random()*c.width,y:Math.random()*c.height,
+        len:Math.random()*60+20,speed:Math.random()*3+1.5,
+        opacity:Math.random()*.5+.1,width:Math.random()<.3?1.5:.8});
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    drops.forEach(d=>{
+      const g=ctx.createLinearGradient(d.x,d.y,d.x+d.len*.15,d.y+d.len);
+      g.addColorStop(0,'rgba(0,212,255,0)');
+      g.addColorStop(.5,`rgba(0,212,255,${d.opacity})`);
+      g.addColorStop(1,'rgba(0,212,255,0)');
+      ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x+d.len*.15,d.y+d.len);
+      ctx.strokeStyle=g;ctx.lineWidth=d.width;ctx.stroke();
+      d.y+=d.speed;d.x+=d.speed*.08;
+      if(d.y>c.height+d.len){d.y=-d.len;d.x=Math.random()*c.width;}
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+})();
+
+
+
+// State
+const FIREBASE_URL = "https://uid-proyecto-fcebb-default-rtdb.europe-west1.firebasedatabase.app";
+function sanitize(s){return s.replace(/[^a-zA-Z0-9]/g,'_')}
+
+async function enviarRespuestas(nombreEquipo, datos) {
+  const key = sanitize(nombreEquipo);
+  const res = await fetch(`${FIREBASE_URL}/respuestas/${key}.json`, {
+    method: 'PUT',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(datos)
+  });
+  return res.ok;
+}
+
+async function obtenerRespuestas() {
+  const res = await fetch(`${FIREBASE_URL}/respuestas.json`);
+  if(!res.ok) return null;
+  return await res.json();
+}
+
+async function enviosAbiertos() {
+  const res = await fetch(`${FIREBASE_URL}/estado/cerrado.json`);
+  if(!res.ok) return true;
+  const val = await res.json();
+  return val !== true;
+}
+let team='',cur=0,totalPts=0;
+let scores={1:0,2:0,3:0},solved={1:false,2:false,3:false};
+let answers={};
+
+if(location.search.includes('trap=phishing'))showScreen('phish-screen');
+
+function start(){
+  const v=document.getElementById('tname').value.trim();
+  if(!v)return;
+  team=v.toUpperCase();
+  localStorage.setItem('uid_team',team);
+  document.getElementById('tdisp').textContent=team;
+  showScreen('dashboard-screen');
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goToApp(){
+  const t=localStorage.getItem('uid_team')||'';
+  if(t){team=t;document.getElementById('tdisp').textContent=t;showScreen('dashboard-screen');}
+  else showScreen('login-screen');
+}
+function closeTip(){document.getElementById('tip').classList.remove('vis');}
+function showTip(txt){
+  document.getElementById('tip-body').innerHTML='<span style="color:var(--mg)">//</span> <strong>PISTA FORENSE:</strong> '+txt;
+  document.getElementById('tip').classList.add('vis');
+}
+function showClue(n){
+  const c=['','El escudo del IES San Fernando identifica el centro. Con el nombre del instituto y la hora del post, el atacante sabe exactamente dónde y cuándo encontrar a Lucas cada día.','La mención @carlos_bff16 revela el nombre del mejor amigo. El atacante puede explorar ese perfil para obtener aún más información.','La calle Málaga nº12 visible al fondo permite localizar la zona. Una búsqueda en Maps y ya saben el barrio.','La hora del post (17:47) más "a la salida" revela que Lucas sale a las 17:30, todos los días, sin excepción.'];
+  showTip(c[n]||'—');
+}
+function openCase(n){
+  cur=n;
+  showScreen('case-screen');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById('tab-context').classList.add('active');
+  loadCase(n);
+}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  const i=['context','evidence','questions'].indexOf(name);
+  document.querySelectorAll('.tab')[i].classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goBack(){showScreen('dashboard-screen');}
+
+const CASES={
+  1:{
+    title:'Expediente 01 — Álvaro',sub:'Phishing · Robo de cuenta · Fraude económico',
+    context:`<div class="note" style="margin-bottom:14px"><strong>// RESUMEN</strong><br>Álvaro, 15 años, denuncia el robo de su cuenta de Instagram y un cargo de 50€ en la cuenta bancaria de sus padres. Afirma no haber dado sus credenciales a nadie.</div><div class="ev"><div class="ev-lbl">CRONOLOGÍA DE EVENTOS</div><div class="ev-body"><div class="trow"><span class="t">09:14</span><span>Álvaro recibe SMS de "Correos"</span></div><div class="trow"><span class="t">09:17</span><span>Álvaro hace clic en el enlace del SMS</span></div><div class="trow"><span class="t">09:19</span><span>Álvaro recibe email de "Instagram"</span></div><div class="trow"><span class="t">09:23</span><span>Álvaro introduce sus credenciales en el enlace</span></div><div class="trow"><span class="t bad">09:31</span><span>Acceso desde IP desconocida a su cuenta de Instagram</span></div><div class="trow"><span class="t bad">10:05</span><span>Cargo de 50€ en web de apuestas</span></div></div></div><div class="note warn">Analizad las evidencias e identificad qué errores cometió Álvaro.</div>`,
+    evidence:`<div class="ev"><div class="ev-lbl">EVIDENCIA A — SMS RECIBIDO</div><div class="ev-body"><div class="sms-from">Correos · 09:14</div><div class="sms">Correos: Tu paquete #ES847291 está retenido. Paga 1,20€ para liberarlo antes de las 12h: <span class="hot" onclick="showTip('La URL termina en .co, no en .es. El dominio oficial de Correos es correos.es. Correos nunca pide pagos por SMS.')">http://correos-entrega<strong>.co</strong>/pago</span><div class="sms-time">09:14</div></div><div style="margin-top:10px;font-size:11px;color:var(--tx-d)">// toca los elementos subrayados para analizarlos</div></div></div><div class="ev"><div class="ev-lbl">EVIDENCIA B — EMAIL RECIBIDO</div><div class="ev-body"><div class="erow"><span class="elbl">DE:</span><span class="hot" onclick="showTip('El remitente no es @instagram.com. Instagram solo envía correos desde @mail.instagram.com. El dominio instagram-account-verify.com es falso.')">security@<strong>instagram-account-verify.com</strong></span></div><div class="erow"><span class="elbl">ASUNTO:</span><span class="hot" onclick="showTip('El lenguaje de urgencia (\"24h\", \"eliminada permanentemente\") es ingeniería social: te presiona para actuar sin pensar.')">⚠ Tu cuenta será eliminada en <strong>24h</strong></span></div><div class="ebody">Hemos detectado actividad sospechosa en tu cuenta de Instagram. Necesitamos que verifiques tu identidad.<br><br>Si no verificas en las próximas 24 horas, tu cuenta será <strong>eliminada permanentemente</strong>.<br><br>Verificar ahora: <span class="hot" onclick="showTip('\"lnstagram\" usa una L minúscula en lugar de una I mayúscula. Casi idénticos visualmente: lnstagram vs Instagram.')">http://<strong>lnstagram</strong>-verify.com/secure</span></div></div></div>`,
+    questions:[
+      {q:'¿Cuál fue el primer error de Álvaro?',opts:['Usó Instagram en una red WiFi pública','Hizo clic en el enlace del SMS sin verificar el dominio','Usaba una contraseña débil','Compartió su usuario en redes sociales'],c:1,exp:'El primer error fue hacer clic en el enlace del SMS sin verificar la URL. El dominio .co en lugar de .es era la señal. Correos nunca pide pagos por SMS.'},
+      {q:'¿Qué señal delata más claramente que el email es falso?',opts:['La hora de envío','Que el asunto menciona 24 horas','La dirección: security@instagram-account-verify.com','Que el email está en español'],c:2,exp:'La dirección del remitente es la señal más clara. Instagram solo envía correos desde @mail.instagram.com o @instagram.com, nunca desde dominios externos.'},
+      {q:'¿Qué debería haber hecho Álvaro al recibir la alerta?',opts:['Responder al email para confirmar su identidad','Abrir la app oficial de Instagram directamente para ver si había alguna alerta real','Reenviar el email a sus contactos','Cambiar su contraseña usando el enlace del email'],c:1,exp:'Siempre que recibas un aviso de una plataforma, accede directamente a la app oficial. Si hay un problema real, lo verás dentro. Nunca uses el enlace del mensaje.'}
+    ]
+  },
+  2:{
+    title:'Expediente 02 — Marta',sub:'Deepfake · Suplantación · Difusión no consentida',
+    context:`<div class="note" style="margin-bottom:14px"><strong>// RESUMEN</strong><br>Marta, profesora de instituto, descubrió que un audio con su voz diciendo comentarios inapropiados había sido difundido entre alumnos. Marta niega haber pronunciado esas palabras en ningún momento.</div><div class="ev"><div class="ev-lbl">CRONOLOGÍA DE EVENTOS</div><div class="ev-body"><div class="trow"><span class="t">Martes</span><span>Alumnos empiezan a escuchar el audio de "Marta"</span></div><div class="trow"><span class="t">Miércoles</span><span>El audio se difunde por WhatsApp del instituto</span></div><div class="trow"><span class="t bad">Jueves</span><span>Marta es alertada por la dirección del centro</span></div><div class="trow"><span class="t bad">Jueves</span><span>Marta denuncia al INCIBE (017) y a la policía</span></div></div></div><div class="note warn">Analizad el informe forense del audio e identificad los indicadores de deepfake.</div>`,
+    evidence:`<div class="ev"><div class="ev-lbl">EVIDENCIA A — ANÁLISIS DEL AUDIO</div><div class="ev-body"><div class="wf" id="wf"><span class="anom-lbl" style="left:20%">⚠ 0:12</span><span class="anom-lbl" style="left:62%">⚠ 0:31</span></div><div style="margin-top:10px;font-size:11px;color:var(--tx-d)">Duración: 0:47 · OGG · Análisis forense activo</div></div></div><div class="ev"><div class="ev-lbl">EVIDENCIA B — INFORME FORENSE</div><div class="ev-body"><div style="font-size:12px;line-height:2.5"><div><span style="color:var(--tx-d)">FRECUENCIAS: </span><span class="hot" onclick="showTip('Las frecuencias altas (>8kHz) presentan patrones artificiales inconsistentes con la voz humana. Indicador clásico de síntesis por IA.')">Irregularidades en banda 8–12kHz ⚠</span></div><div><span style="color:var(--tx-d)">CONTINUIDAD: </span><span class="hot" onclick="showTip('Micro-cortes en los segundos 12 y 31, imperceptibles al oído pero detectables en el espectrograma. La IA une segmentos de grabaciones distintas.')">Micro-cortes en 0:12 y 0:31 ⚠</span></div><div><span style="color:var(--tx-d)">RESPIRACIÓN: </span><span class="hot" onclick="showTip('Los deepfakes tienen dificultades para simular la respiración natural. La ausencia de patrones coherentes es una señal de alerta.')">Patrón artificial ⚠</span></div><div><span style="color:var(--tx-d)">FUENTE PROBABLE: </span><span class="hot" onclick="showTip('El modelo de IA se entrenó con videos públicos de Marta en YouTube. Con solo 3 segundos de audio se puede clonar una voz.')">Videos públicos en YouTube ⚠</span></div></div></div></div><div class="ev"><div class="ev-lbl">EVIDENCIA C — DATO CLAVE</div><div class="ev-body"><div style="font-size:13px;color:var(--tx);line-height:1.8">Existen herramientas gratuitas capaces de clonar una voz con tan solo <strong style="color:var(--mg)">3 segundos de audio</strong>. Solo se necesita un video público de la persona hablando.</div></div></div>`,
+    questions:[
+      {q:'¿Cuál de estos indicadores delata que el audio es un deepfake?',opts:['La duración del mensaje (47 segundos)','El formato OGG en lugar de MP3','Los micro-cortes entre segmentos y las irregularidades en frecuencias altas','Que llegó por WhatsApp'],c:2,exp:'Los micro-cortes entre segmentos y las irregularidades en frecuencias altas son señales características de los deepfakes. La IA une fragmentos de grabaciones reales creando discontinuidades imperceptibles al oído pero detectables en análisis forense.'},
+      {q:'¿Cómo verificar si el audio era real antes de difundirlo?',opts:['Escucharlo varias veces','Contactar directamente con Marta por otro canal para preguntarle','Buscarlo en Google','Ver cuántas veces había sido escuchado'],c:1,exp:'Ante contenido dudoso sobre una persona real, lo más eficaz es contactar directamente por otro canal. Nunca difundas sin verificar: difundir un deepfake puede tener consecuencias legales.'},
+      {q:'¿Quién puede tener responsabilidad legal en este caso?',opts:['Solo quien creó el deepfake','Solo Marta, por tener videos públicos','Solo el creador y quien lo difundió primero','El creador, y potencialmente todos los que lo difundieron a sabiendas'],c:3,exp:'Crear un deepfake para dañar la reputación de alguien es un delito en España. También pueden tener responsabilidad quienes lo difunden conscientemente. Puede constituir delito contra el honor y la intimidad.'}
+    ]
+  },
+  3:{
+    title:'Expediente 03 — Lucas',sub:'Huella digital · OSINT · Extorsión',
+    context:`<div class="note" style="margin-bottom:14px"><strong>// RESUMEN</strong><br>Lucas, 16 años, recibió un mensaje anónimo con información precisa sobre su rutina: a qué hora sale del instituto, en qué zona vive y quién es su mejor amigo. El atacante exige 200€.</div><div class="ev"><div class="ev-lbl">MENSAJE RECIBIDO POR LUCAS</div><div class="ev-body"><div class="sms danger">Sé que sales del instituto a las 17:30. Sé que vives cerca de la calle Málaga. Sé que tu mejor amigo se llama Carlos. Si no me envías 200€ antes del viernes, publicaré todo lo que sé sobre ti.<div class="sms-time" style="color:var(--mg)">Remitente desconocido</div></div></div></div><div class="note warn">Analizad la última foto de Instagram de Lucas. El atacante obtuvo toda esa información sin conocerle. ¿Cómo?</div>`,
+    evidence:`<div class="ev"><div class="ev-lbl">EVIDENCIA A — ÚLTIMA FOTO DE INSTAGRAM</div><div class="ev-body"><div class="insta"><div class="insta-h"><div class="insta-av"></div><div><div class="insta-u">lucas_real16</div><div class="insta-l">Hace 2 días · Perfil público</div></div></div><div class="img-wrap"><div class="img-txt">📸 Lucas y su amigo Carlos<br>a la salida del instituto.<br>Sudadera: IES San Fernando.<br>Fondo: calle Málaga nº 12.<br>Publicado: 17:47</div><div class="mkr" style="top:16%;left:10%" onclick="showClue(1)">1</div><div class="mkr" style="top:16%;right:10%" onclick="showClue(4)">2</div><div class="mkr" style="bottom:20%;right:16%" onclick="showClue(3)">3</div><div class="mkr" style="bottom:20%;left:16%" onclick="showClue(2)">4</div></div><div class="insta-cap">¡Viernes por fin! 🙌 Con el crack de @carlos_bff16 a la salida. Mañana descansamos 😴 <span style="color:#4D9FFF">#instituto #findesemana</span></div></div><div style="margin-top:10px;font-size:11px;color:var(--tx-d)">// toca los marcadores para analizar las pistas ocultas</div></div></div><div class="ev"><div class="ev-lbl">EVIDENCIA B — PERFIL DE LUCAS</div><div class="ev-body"><div style="font-size:12px;line-height:2.5"><div><span style="color:var(--tx-d)">VISIBILIDAD: </span><span class="hot" onclick="showTip('Perfil público: cualquier persona en el mundo puede ver todas sus fotos, localizaciones habituales y relaciones sin necesidad de seguirle.')">Perfil PÚBLICO ⚠</span></div><div><span style="color:var(--tx-d)">PUBLICACIONES: </span><span class="hot" onclick="showTip('287 posts saliendo del mismo instituto en horarios similares. Un atacante puede construir un mapa completo de su rutina solo revisando el historial.')">287 posts · patrón de rutina visible ⚠</span></div><div><span style="color:var(--tx-d)">MENCIONES: </span><span class="hot" onclick="showTip('Al mencionar @carlos_bff16 Lucas revela el nombre del amigo y permite acceder a otro perfil para obtener más información.')">Menciones frecuentes a @carlos_bff16 ⚠</span></div></div></div></div>`,
+    questions:[
+      {q:'¿Cómo obtuvo el atacante la información sin conocer a Lucas?',opts:['Hackeó los servidores de Instagram','Analizó visualmente sus fotos públicas: escudo del instituto, calle al fondo, menciones y horarios','Compró sus datos a una empresa','Accedió con una contraseña robada'],c:1,exp:'El atacante no necesitó hackear nada. Toda la información estaba disponible públicamente en las fotos: el escudo del instituto, la calle al fondo, el nombre del amigo por @carlos_bff16, y el horario por la hora del post. A esto se llama OSINT (Open Source Intelligence).'},
+      {q:'¿Qué debe hacer Lucas AHORA ante el mensaje de extorsión?',opts:['Pagar los 200€','Ignorar el mensaje','Hablar con un adulto, guardar el mensaje y denunciar. NUNCA pagar.','Bloquear al remitente'],c:2,exp:'NUNCA se debe pagar a un extorsionador: confirma que la víctima tiene miedo y conduce a más exigencias. Lo correcto es hablar con padres o tutores, conservar el mensaje y denunciar a la policía o al 017 del INCIBE.'},
+      {q:'¿Qué medida habría impedido este ataque desde el principio?',opts:['Una contraseña más segura','Tener el perfil en privado y ser consciente de qué información revela cada foto','No tener cuenta de Instagram','Publicar solo paisajes'],c:1,exp:'La medida más eficaz es el perfil en privado y pensar antes de publicar qué información se extrae de cada foto: localizaciones, rutinas, personas del entorno. No hay que dejar las redes, solo usarlas de forma consciente.'}
+    ]
+  }
+};
+
+const CORRECT={'1-0':1,'1-1':2,'1-2':1,'2-0':2,'2-1':1,'2-2':3,'3-0':1,'3-1':2,'3-2':1};
+
+function loadCase(n){
+  const c=CASES[n];
+  document.getElementById('cs-title').textContent=c.title;
+  document.getElementById('cs-sub').textContent=c.sub;
+  document.getElementById('tab-context').innerHTML=c.context;
+  document.getElementById('tab-evidence').innerHTML=c.evidence;
+  let html='';
+  if(solved[n]) html+=`<div class="result-box" style="border-color:var(--cy)"><div style="font-family:var(--vt);font-size:36px;color:var(--cy)">✓</div><div class="result-lbl">RESPUESTAS CONFIRMADAS</div></div>`;
+  c.questions.forEach((q,i)=>{
+    html+=`<div class="qblock"><div class="qnum">// PREGUNTA ${i+1} DE ${c.questions.length}</div><div class="qtext">${q.q}</div>`;
+    q.opts.forEach((o,j)=>{
+      html+=`<div class="opt ${solved[n]&&answers[n+'-'+i]===j?'sel':''}" id="o-${n}-${i}-${j}" onclick="pick(${n},${i},${j})"><span class="opt-l">${String.fromCharCode(65+j)}.</span><span class="opt-t">${o}</span></div>`;
+    });
+    html+=`</div>`;
+  });
+  if(!solved[n]){
+    html+=`<button class="reveal-btn" style="border-color:var(--cy);color:var(--cy)" onclick="confirmar(${n})">[ CONFIRMAR RESPUESTAS ]</button>`;
+  }
+  if(n===3 && solved[3]){
+    html+=`<button class="reveal-btn" style="margin-top:8px;border-color:var(--gr);color:var(--gr)" id="btn-enviar" onclick="enviarTodo()">[ ENVIAR AL PANEL PROFESOR ]</button>`;
+  }
+  document.getElementById('tab-questions').innerHTML=html;
+  const btnE = document.getElementById('btn-enviar');
+  if(btnE) btnE.addEventListener('click', enviarTodo);
+  if(n===2) buildWf();
+}
+
+function buildWf(){
+  const c=document.getElementById('wf');
+  if(!c)return;
+  for(let i=0;i<44;i++){
+    const b=document.createElement('div');
+    b.className='wbar';
+    const a=(i>=8&&i<=10)||(i>=25&&i<=27);
+    if(a)b.classList.add('anom');
+    b.style.height=(a?Math.random()*50+15:Math.random()*28+4)+'px';
+    c.appendChild(b);
+  }
+}
+
+function pick(n,q,o){
+  if(solved[n])return;
+  answers[`${n}-${q}`]=o;
+  const cnt=CASES[n].questions[q].opts.length;
+  for(let i=0;i<cnt;i++){const el=document.getElementById(`o-${n}-${q}-${i}`);if(el)el.classList.remove('sel');}
+  const el=document.getElementById(`o-${n}-${q}-${o}`);
+  if(el)el.classList.add('sel');
+}
+
+function confirmar(n){
+  const qs=CASES[n].questions.length;
+  for(let i=0;i<qs;i++){
+    if(answers[`${n}-${i}`]===undefined){
+      alert('Responded todas las preguntas antes de confirmar.');
+      return;
+    }
+  }
+  solved[n]=true;
+  const str=document.getElementById('str-'+n);
+  if(str)str.classList.add('gr');
+  const card=document.getElementById('card-'+n);
+  if(card){
+    const tags=card.querySelector('.case-tags');
+    if(tags){const sp=document.createElement('span');sp.className='tag ok';sp.textContent='CONFIRMADO';tags.appendChild(sp);}
+  }
+  updateInstruc();
+  loadCase(n);
+}
+
+async function enviarTodo() {
+  const abierto = await enviosAbiertos();
+  if(!abierto){
+    alert('⚠ El tiempo de envío ha terminado. La profesora ha cerrado las respuestas.');
+    return;
+  }
+  const datos = {
+    equipo: team,
+    respuestas: answers,
+    timestamp: Date.now()
+  };
+  const ok = await enviarRespuestas(team, datos);
+  if(ok){
+    document.getElementById('btn-enviar') && (document.getElementById('btn-enviar').textContent = '✓ ENVIADO');
+    alert('✓ Respuestas enviadas correctamente');
+  } else {
+    alert('Error al enviar. Comprueba la conexión.');
+  }
+}
+
+
+function updateInstruc(){
+  const done=Object.values(solved).filter(Boolean).length;
+  const el=document.getElementById('instruc');
+  if(!el)return;
+  if(done===3) el.innerHTML='<span style="color:var(--gr)">// TODOS LOS EXPEDIENTES CONFIRMADOS</span><br>Volved al <strong>Expediente 03</strong> y pulsad <strong style="color:var(--gr)">ENVIAR AL PANEL PROFESOR</strong>.';
+  else el.innerHTML='Expedientes resueltos: '+done+'/3 · Seguid con los casos pendientes.';
+}
+</script>
+</body>
+</html>
