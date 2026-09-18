@@ -498,7 +498,7 @@ body::after{
 
 // State
 const FIREBASE_URL = "https://uid-proyecto-fcebb-default-rtdb.europe-west1.firebasedatabase.app";
-function sanitize(s){return s.replace(/[^a-zA-Z0-9]/g,'_')}
+function sanitize(s){return (s||'equipo').replace(/[^a-zA-Z0-9]/g,'_')}
 
 async function enviarRespuestas(nombreEquipo, datos) {
   const key = sanitize(nombreEquipo);
